@@ -1,0 +1,73 @@
+name: tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 18 * *'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      localstack:
+        image: localstack/localstack:4.8
+        ports:
+          - 4566:4566
+        env:
+          SERVICES: ssm
+          DEBUG: 0
+        options: >-
+          --health-cmd="curl -f http://localhost:4566/_localstack/health || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: '.nvmrc'
+          package-manager-cache: false
+
+      - name: Install pnpm
+        run: npm install -g pnpm@^10
+
+      - name: Install npm deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build action
+        run: pnpm run build
+
+      - name: Configure AWS CLI for LocalStack
+        run: |
+          aws configure set aws_access_key_id test
+          aws configure set aws_secret_access_key test
+          aws configure set default.region us-east-1
+
+      - name: Set AWS Endpoint URL to LocalStack
+        run: echo "AWS_ENDPOINT_URL=http://localhost:4566" >> $GITHUB_ENV
+
+      - name: Execute this action
+        uses: ./
+        with:
+          path-prefix: '/testing/'
+          parameters: >-
+            key1=value1,
+            key2=value2
+
+      - name: Execute this action again
+        uses: ./
+        with:
+          path-prefix: '/testing/'
+          parameters: "key1=value1_updated,key_new3=value3,key4=@#a&b^c$secret"
