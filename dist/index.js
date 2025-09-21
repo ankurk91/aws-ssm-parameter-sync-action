@@ -61492,6 +61492,13 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:events"
 
 /***/ }),
 
+/***/ 1708:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
+
+/***/ }),
+
 /***/ 7075:
 /***/ ((module) => {
 
@@ -63231,6 +63238,196 @@ module.exports = parseParams
 
 /***/ }),
 
+/***/ 2896:
+/***/ ((__webpack_module__, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
+
+__nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
+/* harmony import */ var _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(4435);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(9999);
+/* harmony import */ var node_process__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(1708);
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(1353);
+
+
+
+
+
+async function main() {
+  const ssmClient = new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.SSMClient();
+
+  // Get inputs from GitHub Actions
+  const ssmPathPrefixInput = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('path_prefix', {
+    required: true
+  });
+  const parametersInput = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('parameters', {
+    required: true
+  });
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Normalizing input parameters...');
+
+  // Validate and normalize parameters
+  const params = (0,_utils_js__WEBPACK_IMPORTED_MODULE_3__/* .parseParameters */ ._)(parametersInput)
+
+  if (_actions_core__WEBPACK_IMPORTED_MODULE_0__.isDebug()) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`INPUT_PARAMS=${JSON.stringify(params)}`);
+  }
+
+  if (params.length === 0) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('parameters input is required');
+    node_process__WEBPACK_IMPORTED_MODULE_1__.exit(1);
+  }
+
+  // Normalize SSM path prefix
+  const ssmPathPrefix = ssmPathPrefixInput.endsWith('/')
+    ? ssmPathPrefixInput
+    : ssmPathPrefixInput + '/';
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Fetching parameters for prefix: ${ssmPathPrefix}`);
+
+  // Get existing parameters
+  let existingParameters = [];
+  let nextToken;
+
+  do {
+    const command = new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.GetParametersByPathCommand({
+      Path: ssmPathPrefix,
+      WithDecryption: true,
+      Recursive: true,
+      NextToken: nextToken
+    });
+
+    const response = await ssmClient.send(command);
+
+    if (response.Parameters) {
+      existingParameters.push(...response.Parameters.map(param => ({
+        name: param.Name,
+        value: param.Value
+      })));
+    }
+
+    nextToken = response.NextToken;
+  } while (nextToken);
+
+  if (_actions_core__WEBPACK_IMPORTED_MODULE_0__.isDebug()) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.debug(`EXISTING_PARAMETERS=${JSON.stringify(existingParameters)}`);
+  }
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Parameter Store sync starting...`);
+
+  // Process each parameter from input
+  for (const {key, value} of params) {
+    if (!key) continue;
+
+    const fullParamName = `${ssmPathPrefix}${key}`;
+    const existingParam = existingParameters.find(p => p.name === fullParamName);
+
+    // If parameter doesn't exist, create it
+    if (!existingParam) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Parameter ${fullParamName} is missing in SSM. Creating it...`);
+      await ssmClient.send(new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.PutParameterCommand({
+        Name: fullParamName,
+        Value: value,
+        Type: 'SecureString',
+        Overwrite: true
+      }));
+      continue;
+    }
+
+    // If value changed, update it
+    if (value !== existingParam.value) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Updating ${fullParamName} (value changed).`);
+      await ssmClient.send(new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.PutParameterCommand({
+        Name: fullParamName,
+        Value: value,
+        Type: 'SecureString',
+        Overwrite: true
+      }));
+    } else {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Skipping ${fullParamName} (value unchanged).`);
+    }
+  }
+
+  // Delete parameters that are not in the input
+  let deletionFailedCount = 0;
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Checking for orphan parameters...`);
+  for (const existingParam of existingParameters) {
+    const shortName = existingParam.name.replace(ssmPathPrefix, '');
+    const existsInInput = params.some(p => p.key === shortName);
+
+    if (!existsInInput) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__.notice(`Deleting ${existingParam.name} (not found in inputs).`);
+      try {
+        await ssmClient.send(new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.DeleteParameterCommand({
+          Name: existingParam.name
+        }));
+      } catch (error) {
+        _actions_core__WEBPACK_IMPORTED_MODULE_0__.error(`Failed to delete ${existingParam.name}: ${error.message}`);
+        deletionFailedCount++;
+      }
+    }
+  }
+
+  if (deletionFailedCount) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('Aborting due to deletion failure.');
+    node_process__WEBPACK_IMPORTED_MODULE_1__.exit(1);
+  }
+
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Parameter Store sync completed!');
+}
+
+try {
+  await main();
+} catch (error) {
+  _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error);
+  node_process__WEBPACK_IMPORTED_MODULE_1__.exit(1);
+}
+
+__webpack_async_result__();
+} catch(e) { __webpack_async_result__(e); } }, 1);
+
+/***/ }),
+
+/***/ 1353:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   _: () => (/* binding */ parseParameters)
+/* harmony export */ });
+// Shamelessly copied from :)
+// https://github.com/aws-actions/aws-cloudformation-github-deploy/blob/master/src/utils.ts
+function parseParameters(inputs) {
+  const parameters = new Map();
+
+  inputs
+    .split(/,(?=(?:(?:[^"']*["|']){2})*[^"']*$)/g)
+    .forEach(parameter => {
+      const values = parameter.trim().split('=')
+      const key = values[0]
+      // Corrects values that have an = in the value
+      const value = values.slice(1).join('=')
+      let param = parameters.get(key)
+      param = !param ? value : [param, value].join(',')
+      // Remove starting and ending quotes
+      if (
+        (param.startsWith("'") && param.endsWith("'")) ||
+        (param.startsWith('"') && param.endsWith('"'))
+      ) {
+        param = param.substring(1, param.length - 1)
+      }
+      parameters.set(key, param)
+    })
+
+  return [...parameters.keys()].map(key => {
+    return {
+      key: key,
+      value: parameters.get(key)
+    }
+  })
+}
+
+
+/***/ }),
+
 /***/ 171:
 /***/ ((module) => {
 
@@ -63285,187 +63482,101 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"@aws-sdk/nested-clients","ver
 /******/ }
 /******/ 
 /************************************************************************/
+/******/ /* webpack/runtime/async module */
+/******/ (() => {
+/******/ 	var webpackQueues = typeof Symbol === "function" ? Symbol("webpack queues") : "__webpack_queues__";
+/******/ 	var webpackExports = typeof Symbol === "function" ? Symbol("webpack exports") : "__webpack_exports__";
+/******/ 	var webpackError = typeof Symbol === "function" ? Symbol("webpack error") : "__webpack_error__";
+/******/ 	var resolveQueue = (queue) => {
+/******/ 		if(queue && queue.d < 1) {
+/******/ 			queue.d = 1;
+/******/ 			queue.forEach((fn) => (fn.r--));
+/******/ 			queue.forEach((fn) => (fn.r-- ? fn.r++ : fn()));
+/******/ 		}
+/******/ 	}
+/******/ 	var wrapDeps = (deps) => (deps.map((dep) => {
+/******/ 		if(dep !== null && typeof dep === "object") {
+/******/ 			if(dep[webpackQueues]) return dep;
+/******/ 			if(dep.then) {
+/******/ 				var queue = [];
+/******/ 				queue.d = 0;
+/******/ 				dep.then((r) => {
+/******/ 					obj[webpackExports] = r;
+/******/ 					resolveQueue(queue);
+/******/ 				}, (e) => {
+/******/ 					obj[webpackError] = e;
+/******/ 					resolveQueue(queue);
+/******/ 				});
+/******/ 				var obj = {};
+/******/ 				obj[webpackQueues] = (fn) => (fn(queue));
+/******/ 				return obj;
+/******/ 			}
+/******/ 		}
+/******/ 		var ret = {};
+/******/ 		ret[webpackQueues] = x => {};
+/******/ 		ret[webpackExports] = dep;
+/******/ 		return ret;
+/******/ 	}));
+/******/ 	__nccwpck_require__.a = (module, body, hasAwait) => {
+/******/ 		var queue;
+/******/ 		hasAwait && ((queue = []).d = -1);
+/******/ 		var depQueues = new Set();
+/******/ 		var exports = module.exports;
+/******/ 		var currentDeps;
+/******/ 		var outerResolve;
+/******/ 		var reject;
+/******/ 		var promise = new Promise((resolve, rej) => {
+/******/ 			reject = rej;
+/******/ 			outerResolve = resolve;
+/******/ 		});
+/******/ 		promise[webpackExports] = exports;
+/******/ 		promise[webpackQueues] = (fn) => (queue && fn(queue), depQueues.forEach(fn), promise["catch"](x => {}));
+/******/ 		module.exports = promise;
+/******/ 		body((deps) => {
+/******/ 			currentDeps = wrapDeps(deps);
+/******/ 			var fn;
+/******/ 			var getResult = () => (currentDeps.map((d) => {
+/******/ 				if(d[webpackError]) throw d[webpackError];
+/******/ 				return d[webpackExports];
+/******/ 			}))
+/******/ 			var promise = new Promise((resolve) => {
+/******/ 				fn = () => (resolve(getResult));
+/******/ 				fn.r = 0;
+/******/ 				var fnQueue = (q) => (q !== queue && !depQueues.has(q) && (depQueues.add(q), q && !q.d && (fn.r++, q.push(fn))));
+/******/ 				currentDeps.map((dep) => (dep[webpackQueues](fnQueue)));
+/******/ 			});
+/******/ 			return fn.r ? promise : getResult();
+/******/ 		}, (err) => ((err ? reject(promise[webpackError] = err) : outerResolve(exports)), resolveQueue(queue)));
+/******/ 		queue && queue.d < 0 && (queue.d = 0);
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter functions for harmony exports
+/******/ 	__nccwpck_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
 /******/ /* webpack/runtime/compat */
 /******/ 
 /******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
 /******/ 
 /************************************************************************/
-var __webpack_exports__ = {};
-
-// EXTERNAL MODULE: ./node_modules/.pnpm/@aws-sdk+client-ssm@3.891.0/node_modules/@aws-sdk/client-ssm/dist-cjs/index.js
-var dist_cjs = __nccwpck_require__(4435);
-// EXTERNAL MODULE: ./node_modules/.pnpm/@actions+core@1.11.1/node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(9999);
-;// CONCATENATED MODULE: external "node:process"
-const external_node_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:process");
-;// CONCATENATED MODULE: ./src/utils.js
-// Shamelessly copied from :)
-// https://github.com/aws-actions/aws-cloudformation-github-deploy/blob/master/src/utils.ts
-function parseParameters(inputs) {
-  const parameters = new Map();
-
-  inputs
-    .split(/,(?=(?:(?:[^"']*["|']){2})*[^"']*$)/g)
-    .forEach(parameter => {
-      const values = parameter.trim().split('=')
-      const key = values[0]
-      // Corrects values that have an = in the value
-      const value = values.slice(1).join('=')
-      let param = parameters.get(key)
-      param = !param ? value : [param, value].join(',')
-      // Remove starting and ending quotes
-      if (
-        (param.startsWith("'") && param.endsWith("'")) ||
-        (param.startsWith('"') && param.endsWith('"'))
-      ) {
-        param = param.substring(1, param.length - 1)
-      }
-      parameters.set(key, param)
-    })
-
-  return [...parameters.keys()].map(key => {
-    return {
-      key: key,
-      value: parameters.get(key)
-    }
-  })
-}
-
-;// CONCATENATED MODULE: ./src/index.js
-
-
-
-
-
-async function main() {
-  try {
-    const ssmClient = new dist_cjs.SSMClient();
-
-    // Get inputs from GitHub Actions
-    const ssmPathPrefixInput = core.getInput('path-prefix');
-    const parametersInput = core.getInput('parameters');
-
-    // Validate required inputs
-    if (!ssmPathPrefixInput) {
-      core.setFailed('[Error] path-prefix input is required');
-      external_node_process_namespaceObject.exit(1);
-    }
-
-    core.info('Info: Normalizing input parameters...');
-
-    // Validate and normalize parameters
-    const params = parseParameters(parametersInput)
-
-    if (core.isDebug()) {
-      core.debug(`INPUT_PARAMS=${JSON.stringify(params)}`);
-    }
-
-    if (params.length === 0) {
-      core.setFailed('[Error] parameters input is required');
-      external_node_process_namespaceObject.exit(1);
-    }
-
-    // Normalize SSM path prefix
-    const ssmPathPrefix = ssmPathPrefixInput.endsWith('/')
-      ? ssmPathPrefixInput
-      : ssmPathPrefixInput + '/';
-
-    core.info(`Info: Fetching parameters for prefix: ${ssmPathPrefix}`);
-
-    // Get existing parameters
-    let existingParameters = [];
-    let nextToken;
-
-    do {
-      const command = new dist_cjs.GetParametersByPathCommand({
-        Path: ssmPathPrefix,
-        WithDecryption: true,
-        Recursive: true,
-        NextToken: nextToken
-      });
-
-      const response = await ssmClient.send(command);
-
-      if (response.Parameters) {
-        existingParameters.push(...response.Parameters.map(param => ({
-          name: param.Name,
-          value: param.Value
-        })));
-      }
-
-      nextToken = response.NextToken;
-    } while (nextToken);
-
-    if (core.isDebug()) {
-      core.debug(`EXISTING_PARAMETERS=${JSON.stringify(existingParameters)}`);
-    }
-
-    // Process each parameter from input
-    for (const {key, value} of params) {
-      if (!key) continue;
-
-      const fullParamName = `${ssmPathPrefix}${key}`;
-      const existingParam = existingParameters.find(p => p.name === fullParamName);
-
-      // If parameter doesn't exist, create it
-      if (!existingParam) {
-        core.notice(`[Notice] Parameter ${fullParamName} is missing in SSM. Creating it...`);
-        await ssmClient.send(new dist_cjs.PutParameterCommand({
-          Name: fullParamName,
-          Value: value,
-          Type: 'SecureString',
-          Overwrite: true
-        }));
-        continue;
-      }
-
-      // If value changed, update it
-      if (value !== existingParam.value) {
-        core.notice(`[Notice] Updating ${fullParamName} (value changed).`);
-        await ssmClient.send(new dist_cjs.PutParameterCommand({
-          Name: fullParamName,
-          Value: value,
-          Type: 'SecureString',
-          Overwrite: true
-        }));
-      } else {
-        core.info(`Info: Skipping ${fullParamName} (value unchanged).`);
-      }
-    }
-
-    // Delete parameters that are not in the input
-    let deletionFailed = false;
-
-    for (const existingParam of existingParameters) {
-      const shortName = existingParam.name.replace(ssmPathPrefix, '');
-      const existsInInput = params.some(p => p.key === shortName);
-
-      if (!existsInInput) {
-        core.warning(`Deleting ${existingParam.name} (not found in inputs).`);
-        try {
-          await ssmClient.send(new dist_cjs.DeleteParameterCommand({
-            Name: existingParam.name
-          }));
-        } catch (error) {
-          core.error(`[Error] Failed to delete ${existingParam.name}: ${error.message}`);
-          deletionFailed = true;
-          break;
-        }
-      }
-    }
-
-    if (deletionFailed) {
-      core.setFailed('[Error] Aborting due to deletion failure.');
-      external_node_process_namespaceObject.exit(1);
-    }
-
-    core.info('Info: Parameter Store sync completed!');
-
-  } catch (error) {
-    core.setFailed(`[Error] ${error.message}`);
-    external_node_process_namespaceObject.exit(1);
-  }
-}
-
-main();
-
+/******/ 
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ // This entry module used 'module' so it can't be inlined
+/******/ var __webpack_exports__ = __nccwpck_require__(2896);
+/******/ __webpack_exports__ = await __webpack_exports__;
+/******/ 

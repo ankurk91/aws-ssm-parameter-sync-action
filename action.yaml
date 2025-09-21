@@ -4,7 +4,7 @@ branding:
   icon: 'repeat'
   color: 'red'
 inputs:
-  path-prefix:
+  path_prefix:
     description: SSM path prefix
     required: true
   parameters:

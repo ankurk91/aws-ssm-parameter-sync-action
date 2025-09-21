@@ -33,7 +33,7 @@ jobs:
       - name: Sync SSM parameters
         uses: ankurk91/aws-ssm-parameter-sync-action@v1
         with:
-          path-prefix: "/production/"
+          path_prefix: "/production/"
           parameters: >-
             DB_USER=${{ secrets.DB_USER }},
             DB_PASSWORD=${{ secrets.DB_PASSWORD }},
@@ -44,7 +44,7 @@ jobs:
 
 | Name          | Required | Default | Description                    |
 |---------------|----------|---------|--------------------------------|
-| `path-prefix` | Yes      | `null`  | SSM path prefix                |
+| `path_prefix` | Yes      | `null`  | SSM path prefix                |
 | `parameters`  | Yes      | `null`  | Comma separated key value pair |
 
 ### Notes
