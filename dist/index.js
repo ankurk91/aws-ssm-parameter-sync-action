@@ -63251,7 +63251,7 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 
 
 
-async function main() {
+async function run() {
   const ssmClient = new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.SSMClient();
 
   // Get inputs from GitHub Actions
@@ -63272,18 +63272,15 @@ async function main() {
   }
 
   if (params.length === 0) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('parameters input is required');
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('parameters input is invalid.');
     node_process__WEBPACK_IMPORTED_MODULE_1__.exit(1);
   }
 
   // Normalize SSM path prefix
-  const ssmPathPrefix = ssmPathPrefixInput.endsWith('/')
-    ? ssmPathPrefixInput
-    : ssmPathPrefixInput + '/';
+  const ssmPathPrefix = ssmPathPrefixInput.replace(/\/?$/, '/');
 
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Fetching parameters for prefix: ${ssmPathPrefix}`);
 
-  // Get existing parameters
   let existingParameters = [];
   let nextToken;
 
@@ -63368,19 +63365,17 @@ async function main() {
   }
 
   if (deletionFailedCount) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('Aborting due to deletion failure.');
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(`Failed to delete ${deletionFailedCount} parameter(s).`);
     node_process__WEBPACK_IMPORTED_MODULE_1__.exit(1);
   }
 
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.info('Parameter Store sync completed!');
 }
 
-try {
-  await main();
-} catch (error) {
+await run().catch(error => {
   _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(error);
-  node_process__WEBPACK_IMPORTED_MODULE_1__.exit(1);
-}
+});
+
 
 __webpack_async_result__();
 } catch(e) { __webpack_async_result__(e); } }, 1);
