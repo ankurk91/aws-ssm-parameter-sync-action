@@ -3,7 +3,7 @@ import * as core from "@actions/core";
 import process from "node:process";
 import {parseParameters} from "./utils.js";
 
-async function main() {
+async function run() {
   const ssmClient = new SSMClient();
 
   // Get inputs from GitHub Actions
@@ -24,18 +24,15 @@ async function main() {
   }
 
   if (params.length === 0) {
-    core.setFailed('parameters input is required');
+    core.setFailed('parameters input is invalid.');
     process.exit(1);
   }
 
   // Normalize SSM path prefix
-  const ssmPathPrefix = ssmPathPrefixInput.endsWith('/')
-    ? ssmPathPrefixInput
-    : ssmPathPrefixInput + '/';
+  const ssmPathPrefix = ssmPathPrefixInput.replace(/\/?$/, '/');
 
   core.info(`Fetching parameters for prefix: ${ssmPathPrefix}`);
 
-  // Get existing parameters
   let existingParameters = [];
   let nextToken;
 
@@ -120,16 +117,14 @@ async function main() {
   }
 
   if (deletionFailedCount) {
-    core.setFailed('Aborting due to deletion failure.');
+    core.setFailed(`Failed to delete ${deletionFailedCount} parameter(s).`);
     process.exit(1);
   }
 
   core.info('Parameter Store sync completed!');
 }
 
-try {
-  await main();
-} catch (error) {
+await run().catch(error => {
   core.setFailed(error);
-  process.exit(1);
-}
+});
+
