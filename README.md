@@ -32,7 +32,7 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Sync SSM parameters
-        uses: ankurk91/aws-ssm-parameter-sync-action@v1
+        uses: ankurk91/aws-ssm-parameter-sync-action@v2
         with:
           path_prefix: "/production/"
           parameters: >-
