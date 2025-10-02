@@ -24,7 +24,7 @@ export function parseParameters(inputs) {
 
   return [...parameters.keys()].map(key => {
     return {
-      key: key,
+      name: key,
       value: parameters.get(key)
     }
   })

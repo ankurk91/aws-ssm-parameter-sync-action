@@ -1,7 +1,6 @@
 {
   "name": "aws-ssm-parameter-sync-action",
-  "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "type": "module",
   "private": "true",
   "keywords": [

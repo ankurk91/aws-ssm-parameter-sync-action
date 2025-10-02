@@ -66,10 +66,10 @@ async function run() {
   core.info(`Parameter Store sync starting...`);
 
   // Process each parameter from input
-  for (const {key, value} of params) {
-    if (!key) continue;
+  for (const {name, value} of params) {
+    if (!name) continue;
 
-    const fullParamName = `${ssmPathPrefix}${key}`;
+    const fullParamName = `${ssmPathPrefix}${name}`;
     const existingParam = existingParameters.find(p => p.name === fullParamName);
 
     // If parameter doesn't exist, create it
@@ -106,7 +106,7 @@ async function run() {
   core.info(`Checking for orphan parameters...`);
   for (const existingParam of existingParameters) {
     const shortName = existingParam.name.replace(ssmPathPrefix, '');
-    const existsInInput = params.some(p => p.key === shortName);
+    const existsInInput = params.some(p => p.name === shortName);
 
     if (!existsInInput) {
       core.notice(`Deleting ${existingParam.name} (not found in inputs).`);
