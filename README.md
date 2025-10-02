@@ -9,7 +9,7 @@ A GitHub Action to sync parameters to AWS Systems Manager Parameter Store.
 * Create or update parameters
 * Delete orphan parameters
 * This action assumes that all parameters are `SecureString`
-* This action assumes that your have prefixed your parameters
+* This action assumes that you have prefixed your parameters
 
 ### Usage
 
