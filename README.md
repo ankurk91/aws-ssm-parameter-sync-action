@@ -42,10 +42,11 @@ jobs:
 
 ### Inputs
 
-| Name          | Required | Default | Description                    |
-|---------------|----------|---------|--------------------------------|
-| `path_prefix` | Yes      | `null`  | SSM path prefix                |
-| `parameters`  | Yes      | `null`  | Comma separated key value pair |
+| Name          | Required | Default    | Description                                            |
+|---------------|----------|------------|--------------------------------------------------------|
+| `path_prefix` | Yes      | `null`     | SSM path prefix                                        |
+| `parameters`  | Yes      | `null`     | Comma separated key value pair                         |
+| `tier`        | Not      | `Standard` | One of `Advanced`, `Intelligent-Tiering` or `Standard` |
 
 ### Credentials and Region
 

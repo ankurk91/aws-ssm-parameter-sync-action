@@ -13,6 +13,9 @@ async function run() {
   const parametersInput = core.getInput('parameters', {
     required: true
   });
+  const tier = core.getInput('tier', {
+    required: false
+  });
 
   core.info('Normalizing input parameters...');
 
@@ -76,7 +79,8 @@ async function run() {
         Name: fullParamName,
         Value: value,
         Type: 'SecureString',
-        Overwrite: true
+        Overwrite: true,
+        Tier: tier,
       }));
       continue;
     }
@@ -88,7 +92,8 @@ async function run() {
         Name: fullParamName,
         Value: value,
         Type: 'SecureString',
-        Overwrite: true
+        Overwrite: true,
+        Tier: tier,
       }));
     } else {
       core.info(`Skipping ${fullParamName} (value unchanged).`);
