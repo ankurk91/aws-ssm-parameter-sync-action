@@ -47,7 +47,7 @@ jobs:
 |---------------|----------|------------|--------------------------------------------------------|
 | `path_prefix` | Yes      | `null`     | SSM path prefix                                        |
 | `parameters`  | Yes      | `null`     | Comma separated key value pair                         |
-| `tier`        | Not      | `Standard` | One of `Advanced`, `Intelligent-Tiering` or `Standard` |
+| `tier`        | No       | `Standard` | One of `Advanced`, `Intelligent-Tiering` or `Standard` |
 
 ### Credentials and Region
 
