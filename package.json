@@ -14,14 +14,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --env-file=.env ./src/index.js",
-    "build": "ncc build -o dist/ ./src/index.js"
+    "build": "ncc build ./src/index.js -o dist/"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@aws-sdk/client-ssm": "^3.891.0"
+    "@aws-sdk/client-ssm": "^3.901.0"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.3"
+    "@vercel/ncc": "^0.38.4"
   },
   "engineStrict": true,
   "packageManager": "pnpm@10.17.0",
