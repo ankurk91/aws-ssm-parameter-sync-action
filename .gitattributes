@@ -17,3 +17,9 @@
 tests export-ignore
 __test__ export-ignore
 .github export-ignore
+
+# Do not show diffs for built artifacts
+dist/** -diff
+
+# Exclude built artifacts from language statistics
+dist/** linguist-vendored
