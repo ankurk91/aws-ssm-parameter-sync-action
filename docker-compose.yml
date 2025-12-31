@@ -1,6 +1,6 @@
 services:
   localstack:
-    image: localstack/localstack:4.8
+    image: localstack/localstack:4.12
     container_name: localstack
     restart: no
     ports:
