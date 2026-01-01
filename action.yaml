@@ -1,8 +1,10 @@
 name: AWS SSM Sync Parameters
-description: Sync Parameters to AWS SSM
+description: Sync Parameters to AWS SSM Parameter store
+
 branding:
   icon: repeat
   color: red
+
 inputs:
   path_prefix:
     description: SSM path prefix
@@ -13,6 +15,7 @@ inputs:
   tier:
     description: The parameter tier to assign to a parameter
     default: Standard
+
 runs:
   using: node24
   main: 'dist/index.js'

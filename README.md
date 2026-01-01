@@ -52,7 +52,7 @@ jobs:
 ### Credentials and Region
 
 This action relies on the default behavior of the
-[AWS SDK for Javascript](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-credentials-node.html)
+[AWS SDK for Javascript](https://docs.aws.amazon.com//sdk-for-javascript/v3/developer-guide/setting-credentials-node.html)
 to determine AWS credentials and region.
 Use the [aws-actions/configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials) action to
 configure the GitHub Actions environment with environment variables containing AWS credentials and your desired region.

@@ -1,4 +1,8 @@
-import {DeleteParameterCommand, GetParametersByPathCommand, PutParameterCommand, SSMClient} from "@aws-sdk/client-ssm";
+import {
+  DeleteParameterCommand,
+  GetParametersByPathCommand,
+  PutParameterCommand,
+  SSMClient} from "@aws-sdk/client-ssm";
 import * as core from "@actions/core";
 import process from "node:process";
 import {parseParameters} from "./utils.js";
