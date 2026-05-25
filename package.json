@@ -17,8 +17,8 @@
     "build": "ncc build ./src/index.js -o dist/"
   },
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@aws-sdk/client-ssm": "^3.958.0"
+    "@actions/core": "^3.0.1",
+    "@aws-sdk/client-ssm": "^3.1053.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.4"
