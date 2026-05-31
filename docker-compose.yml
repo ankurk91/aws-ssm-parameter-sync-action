@@ -1,25 +1,15 @@
 services:
-  localstack:
-    image: localstack/localstack:4.14
-    container_name: localstack
+  floci:
+    image: floci/floci:1.5.20
+    container_name: floci
     restart: no
     ports:
       - "127.0.0.1:4566:4566"
-      - "127.0.0.1:4510-4559:4510-4559"
     environment:
-      SERVICES: ssm
-      DEBUG: ${LOCALSTACK_DEBUG:-0}
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "localstack_data:/var/lib/localstack"
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:4566/_localstack/health || exit 1" ]
+      FLOCI_STORAGE_MODE: memory
     networks:
-      - localstack_network
-
-volumes:
-  localstack_data:
+      - floci_network
 
 networks:
-  localstack_network:
+  floci_network:
     driver: bridge
