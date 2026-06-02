@@ -56,12 +56,16 @@ jobs:
         uses: ./
         with:
           path_prefix: '/testing/'
-          parameters: >-
-            key1=value1,
-            key2=value2
+          parameters: |
+            key1: value1
+            key2: value2
 
       - name: Execute this action again
         uses: ./
         with:
           path_prefix: '/testing/'
-          parameters: "key1=value1_updated,key_new3=value3,key4=@#a&b^c$secret"
+          parameters: |
+            key1: value1_updated
+            key_new3: value3
+            key4: "@#a&b^c$secret"
+            key5: "@#$#%@%@#!"

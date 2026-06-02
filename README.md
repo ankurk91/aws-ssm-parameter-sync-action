@@ -35,10 +35,10 @@ jobs:
         uses: ankurk91/aws-ssm-parameter-sync-action@v2
         with:
           path_prefix: "/production/"
-          parameters: >-
-            DB_USER=${{ secrets.DB_USER }},
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }},
-            DB_DEBUG=${{ vars.DB_DEBUG }},
+          parameters: |
+            DB_USER: ${{ secrets.DB_USER }}
+            DB_PASSWORD: "${{ secrets.DB_PASSWORD }}"
+            DB_DEBUG: ${{ vars.DB_DEBUG }}
 ```
 
 ### Inputs
@@ -46,7 +46,7 @@ jobs:
 | Name          | Required | Default    | Description                                            |
 |---------------|----------|------------|--------------------------------------------------------|
 | `path_prefix` | Yes      | `null`     | SSM path prefix                                        |
-| `parameters`  | Yes      | `null`     | Comma separated key value pair                         |
+| `parameters`  | Yes      | `null`     | YAML mapping of parameter names to values              |
 | `tier`        | No       | `Standard` | One of `Advanced`, `Intelligent-Tiering` or `Standard` |
 
 ### Credentials and Region

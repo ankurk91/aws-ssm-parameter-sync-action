@@ -14,6 +14,9 @@ importers:
       '@aws-sdk/client-ssm':
         specifier: ^3.1053.0
         version: 3.1053.0
+      js-yaml:
+        specifier: ^4.2.0
+        version: 4.2.0
     devDependencies:
       '@vercel/ncc':
         specifier: ^0.38.4
@@ -161,6 +164,9 @@ packages:
     resolution: {integrity: sha512-8LwjnlP39s08C08J5NstzriPvW1SP8Zfpp1BvC2sI35kPeZnHfxVkCwu4/+Wodgnd60UtT1n8K8zw+Mp7J9JmQ==}
     hasBin: true
 
+  argparse@2.0.1:
+    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
+
   bowser@2.14.1:
     resolution: {integrity: sha512-tzPjzCxygAKWFOJP011oxFHs57HzIhOEracIgAePE4pqB3LikALKnSzUyU4MGs9/iCEUuHlAJTjTc5M+u7YEGg==}
 
@@ -169,6 +175,10 @@ packages:
 
   fast-xml-parser@5.7.3:
     resolution: {integrity: sha512-C0AaNuC+mscy6vrAQKAc/rMq+zAPHodfHGZu4sGVehvAQt/JLG1O5zEcYcXSY5zSqr4YVgxsB+pHXTq0i7eDlg==}
+    hasBin: true
+
+  js-yaml@4.2.0:
+    resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
     hasBin: true
 
   path-expression-matcher@1.5.0:
@@ -451,6 +461,8 @@ snapshots:
 
   '@vercel/ncc@0.38.4': {}
 
+  argparse@2.0.1: {}
+
   bowser@2.14.1: {}
 
   fast-xml-builder@1.2.0:
@@ -464,6 +476,10 @@ snapshots:
       fast-xml-builder: 1.2.0
       path-expression-matcher: 1.5.0
       strnum: 2.3.0
+
+  js-yaml@4.2.0:
+    dependencies:
+      argparse: 2.0.1
 
   path-expression-matcher@1.5.0: {}
 

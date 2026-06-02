@@ -1,31 +1,26 @@
-// Shamelessly copied from :)
-// https://github.com/aws-actions/aws-cloudformation-github-deploy/blob/master/src/utils.ts
-export function parseParameters(inputs) {
-  const parameters = new Map();
+import yaml from 'js-yaml';
 
-  inputs
-    .split(/,(?=(?:(?:[^"']*["|']){2})*[^"']*$)/g)
-    .forEach(parameter => {
-      const values = parameter.trim().split('=')
-      const key = values[0]
-      // Corrects values that have an = in the value
-      const value = values.slice(1).join('=')
-      let param = parameters.get(key)
-      param = !param ? value : [param, value].join(',')
-      // Remove starting and ending quotes
-      if (
-        (param.startsWith("'") && param.endsWith("'")) ||
-        (param.startsWith('"') && param.endsWith('"'))
-      ) {
-        param = param.substring(1, param.length - 1)
-      }
-      parameters.set(key, param)
-    })
+export function parseParameters(input) {
+  const trimmed = input.trim();
+  if (!trimmed) {
+    return [];
+  }
 
-  return [...parameters.keys()].map(key => {
-    return {
-      name: key,
-      value: parameters.get(key)
-    }
-  })
+  let doc;
+  try {
+    doc = yaml.load(trimmed, {schema: yaml.JSON_SCHEMA});
+  } catch (error) {
+    throw new Error(`Failed to parse parameters as YAML: ${error.message}`);
+  }
+
+  if (doc === null || typeof doc !== 'object' || Array.isArray(doc)) {
+    throw new Error('parameters must be a YAML mapping (key: value pairs)');
+  }
+
+  return Object.entries(doc)
+    .filter(([name]) => name)
+    .map(([name, value]) => ({
+      name: String(name),
+      value: value == null ? '' : String(value),
+    }));
 }
