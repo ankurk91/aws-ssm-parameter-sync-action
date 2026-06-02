@@ -9,8 +9,12 @@ on:
   pull_request:
     branches:
       - main
+      - dev
   schedule:
     - cron: '0 0 18 * *'
+
+permissions:
+  contents: read
 
 jobs:
   tests:
@@ -27,6 +31,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup node.js
         uses: actions/setup-node@v6

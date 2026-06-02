@@ -32,7 +32,7 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Sync SSM parameters
-        uses: ankurk91/aws-ssm-parameter-sync-action@v2
+        uses: ankurk91/aws-ssm-parameter-sync-action@v3
         with:
           path_prefix: "/production/"
           parameters: |
@@ -84,7 +84,7 @@ This action requires the following minimum set of permissions:
 
 ### Reference links
 
-* https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html
+* [AWS SSM Docs](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html)
 
 ### License
 
