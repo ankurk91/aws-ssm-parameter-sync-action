@@ -56962,17 +56962,15 @@ function getIDToken(aud) {
 /***/ ((__webpack_module__, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(5831);
+/* harmony import */ var _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(5831);
 /* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(1447);
-/* harmony import */ var node_process__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(1708);
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(4680);
-
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(4680);
 
 
 
 
 async function run() {
-  const ssmClient = new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_3__.SSMClient();
+  const ssmClient = new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.SSMClient();
 
   // Get inputs from GitHub Actions
   const ssmPathPrefixInput = _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4('path_prefix', {
@@ -56988,7 +56986,7 @@ async function run() {
   _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq('Normalizing input parameters...');
 
   // Validate and normalize parameters
-  const params = (0,_utils_js__WEBPACK_IMPORTED_MODULE_2__/* .parseParameters */ ._)(parametersInput)
+  const params = (0,_utils_js__WEBPACK_IMPORTED_MODULE_1__/* .parseParameters */ ._)(parametersInput)
 
   if (_actions_core__WEBPACK_IMPORTED_MODULE_0__/* .isDebug */ ._o()) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .debug */ .Yz(`INPUT_PARAMS=${JSON.stringify(params)}`);
@@ -56996,7 +56994,7 @@ async function run() {
 
   if (params.length === 0) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .setFailed */ .C1('parameters input is invalid.');
-    node_process__WEBPACK_IMPORTED_MODULE_1__.exit(1);
+    return;
   }
 
   // Normalize SSM path prefix
@@ -57004,11 +57002,11 @@ async function run() {
 
   _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq(`Fetching parameters for prefix: ${ssmPathPrefix}`);
 
-  let existingParameters = [];
+  const existingParameters = [];
   let nextToken;
 
   do {
-    const command = new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_3__.GetParametersByPathCommand({
+    const command = new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.GetParametersByPathCommand({
       Path: ssmPathPrefix,
       WithDecryption: true,
       Recursive: true,
@@ -57035,37 +57033,26 @@ async function run() {
 
   // Process each parameter from input
   for (const {name, value} of params) {
-    if (!name) continue;
-
     const fullParamName = `${ssmPathPrefix}${name}`;
     const existingParam = existingParameters.find(p => p.name === fullParamName);
 
-    // If parameter doesn't exist, create it
+    // Create if missing, update if the value changed, otherwise skip
     if (!existingParam) {
       _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq(`Parameter ${fullParamName} is missing in SSM. Creating it...`);
-      await ssmClient.send(new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_3__.PutParameterCommand({
-        Name: fullParamName,
-        Value: value,
-        Type: 'SecureString',
-        Overwrite: true,
-        Tier: tier,
-      }));
+    } else if (value !== existingParam.value) {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq(`Updating ${fullParamName} (value changed).`);
+    } else {
+      _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq(`Skipping ${fullParamName} (value unchanged).`);
       continue;
     }
 
-    // If value changed, update it
-    if (value !== existingParam.value) {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq(`Updating ${fullParamName} (value changed).`);
-      await ssmClient.send(new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_3__.PutParameterCommand({
-        Name: fullParamName,
-        Value: value,
-        Type: 'SecureString',
-        Overwrite: true,
-        Tier: tier,
-      }));
-    } else {
-      _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq(`Skipping ${fullParamName} (value unchanged).`);
-    }
+    await ssmClient.send(new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.PutParameterCommand({
+      Name: fullParamName,
+      Value: value,
+      Type: 'SecureString',
+      Overwrite: true,
+      Tier: tier,
+    }));
   }
 
   // Delete parameters that are not in the input
@@ -57079,7 +57066,7 @@ async function run() {
     if (!existsInInput) {
       _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .notice */ .lm(`Deleting ${existingParam.name} (not found in inputs).`);
       try {
-        await ssmClient.send(new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_3__.DeleteParameterCommand({
+        await ssmClient.send(new _aws_sdk_client_ssm__WEBPACK_IMPORTED_MODULE_2__.DeleteParameterCommand({
           Name: existingParam.name
         }));
       } catch (error) {
@@ -57091,7 +57078,7 @@ async function run() {
 
   if (deletionFailedCount) {
     _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .setFailed */ .C1(`Failed to delete ${deletionFailedCount} parameter(s).`);
-    node_process__WEBPACK_IMPORTED_MODULE_1__.exit(1);
+    return;
   }
 
   _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq('Parameter Store sync completed!');
