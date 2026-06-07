@@ -4,7 +4,6 @@ import {
   PutParameterCommand,
   SSMClient} from "@aws-sdk/client-ssm";
 import * as core from "@actions/core";
-import process from "node:process";
 import {parseParameters} from "./utils.js";
 
 async function run() {
@@ -32,7 +31,7 @@ async function run() {
 
   if (params.length === 0) {
     core.setFailed('parameters input is invalid.');
-    process.exit(1);
+    return;
   }
 
   // Normalize SSM path prefix
@@ -40,7 +39,7 @@ async function run() {
 
   core.info(`Fetching parameters for prefix: ${ssmPathPrefix}`);
 
-  let existingParameters = [];
+  const existingParameters = [];
   let nextToken;
 
   do {
@@ -71,37 +70,26 @@ async function run() {
 
   // Process each parameter from input
   for (const {name, value} of params) {
-    if (!name) continue;
-
     const fullParamName = `${ssmPathPrefix}${name}`;
     const existingParam = existingParameters.find(p => p.name === fullParamName);
 
-    // If parameter doesn't exist, create it
+    // Create if missing, update if the value changed, otherwise skip
     if (!existingParam) {
       core.info(`Parameter ${fullParamName} is missing in SSM. Creating it...`);
-      await ssmClient.send(new PutParameterCommand({
-        Name: fullParamName,
-        Value: value,
-        Type: 'SecureString',
-        Overwrite: true,
-        Tier: tier,
-      }));
+    } else if (value !== existingParam.value) {
+      core.info(`Updating ${fullParamName} (value changed).`);
+    } else {
+      core.info(`Skipping ${fullParamName} (value unchanged).`);
       continue;
     }
 
-    // If value changed, update it
-    if (value !== existingParam.value) {
-      core.info(`Updating ${fullParamName} (value changed).`);
-      await ssmClient.send(new PutParameterCommand({
-        Name: fullParamName,
-        Value: value,
-        Type: 'SecureString',
-        Overwrite: true,
-        Tier: tier,
-      }));
-    } else {
-      core.info(`Skipping ${fullParamName} (value unchanged).`);
-    }
+    await ssmClient.send(new PutParameterCommand({
+      Name: fullParamName,
+      Value: value,
+      Type: 'SecureString',
+      Overwrite: true,
+      Tier: tier,
+    }));
   }
 
   // Delete parameters that are not in the input
@@ -127,7 +115,7 @@ async function run() {
 
   if (deletionFailedCount) {
     core.setFailed(`Failed to delete ${deletionFailedCount} parameter(s).`);
-    process.exit(1);
+    return;
   }
 
   core.info('Parameter Store sync completed!');
