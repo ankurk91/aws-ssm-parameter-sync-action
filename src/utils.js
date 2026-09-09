@@ -1,4 +1,4 @@
-import yaml from 'js-yaml';
+import {load, JSON_SCHEMA} from 'js-yaml';
 
 export function parseParameters(input) {
   const trimmed = input.trim();
@@ -8,7 +8,7 @@ export function parseParameters(input) {
 
   let doc;
   try {
-    doc = yaml.load(trimmed, {schema: yaml.JSON_SCHEMA});
+    doc = load(trimmed, {schema: JSON_SCHEMA});
   } catch (error) {
     throw new Error(`Failed to parse parameters as YAML: ${error.message}`);
   }
