@@ -38,7 +38,22 @@ async function run() {
   }
 
   // Normalize SSM path prefix
+  if (!ssmPathPrefixInput.startsWith('/')) {
+    throw new Error('path_prefix must start with "/"');
+  }
+
   const ssmPathPrefix = ssmPathPrefixInput.replace(/\/?$/, '/');
+  const segments = ssmPathPrefix.split('/').filter(Boolean);
+
+  // A root path would list (and then delete) every parameter in the region
+  if (segments.length < 1) {
+    throw new Error('path_prefix must contain at least one path segment; "/" is refused');
+  }
+
+  // Catches a half-rendered prefix, e.g. "/${{ vars.ENV }}/db/" with ENV unset
+  if (ssmPathPrefix.includes('//')) {
+    throw new Error(`path_prefix has an empty path segment: ${ssmPathPrefix}`);
+  }
 
   core.info(`Fetching parameters for prefix: ${ssmPathPrefix}`);
 
