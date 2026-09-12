@@ -57,15 +57,32 @@ jobs:
         with:
           path_prefix: '/testing/'
           parameters: |
-            key1: value1
-            key2: value2
+            key1: "value1"
+            key2: "value2"
 
       - name: Execute this action again
         uses: ./
         with:
           path_prefix: '/testing/'
           parameters: |
-            key1: value1_updated
-            key_new3: value3
+            key1: "value1_updated"
+            key_new3: "value3"
             key4: "@#a&b^c$secret"
             key5: "@#$#%@%@#!"
+            key6: "1.100"
+
+      - name: Execute this action with a non-scalar value
+        id: bad_value
+        continue-on-error: true
+        uses: ./
+        with:
+          path_prefix: '/testing-invalid/'
+          parameters: |
+            key_bad: [a, b]
+
+      - name: Assert the non-scalar value failed the run
+        run: |
+          if [ "${{ steps.bad_value.outcome }}" != "failure" ]; then
+            echo "Expected a sequence value to fail the sync, got: ${{ steps.bad_value.outcome }}"
+            exit 1
+          fi

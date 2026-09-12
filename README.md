@@ -36,9 +36,9 @@ jobs:
         with:
           path_prefix: "/production/"
           parameters: |
-            DB_USER: ${{ secrets.DB_USER }}
+            DB_USER: "${{ secrets.DB_USER }}"
             DB_PASSWORD: "${{ secrets.DB_PASSWORD }}"
-            DB_DEBUG: ${{ vars.DB_DEBUG }}
+            DB_DEBUG: "${{ vars.DB_DEBUG }}"
 ```
 
 ### Inputs
@@ -85,6 +85,12 @@ This action requires the following minimum set of permissions:
 
 When using a customer-managed `kms_key_id`, the role also needs `kms:Encrypt`, `kms:Decrypt` and
 `kms:GenerateDataKey` on that key (granted via the IAM policy and the key policy).
+
+### Quoting values 
+
+Always quote your values. They are parsed as YAML, so an unquoted `1.10` is stored as `1.1` and a
+long numeric id loses precision. The action warns on every unquoted number or boolean, and fails
+the run on a mapping or a sequence, which cannot be stored as a string.
 
 ### Reference links
 
