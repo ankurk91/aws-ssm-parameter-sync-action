@@ -64981,6 +64981,9 @@ async function run() {
   const tier = _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4('tier', {
     required: false
   });
+  const kmsKeyId = _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4('kms_key_id', {
+    required: false
+  }) || undefined;
 
   _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq('Normalizing input parameters...');
 
@@ -64997,7 +65000,22 @@ async function run() {
   }
 
   // Normalize SSM path prefix
+  if (!ssmPathPrefixInput.startsWith('/')) {
+    throw new Error('path_prefix must start with "/"');
+  }
+
   const ssmPathPrefix = ssmPathPrefixInput.replace(/\/?$/, '/');
+  const segments = ssmPathPrefix.split('/').filter(Boolean);
+
+  // A root path would list (and then delete) every parameter in the region
+  if (segments.length < 1) {
+    throw new Error('path_prefix must contain at least one path segment; "/" is refused');
+  }
+
+  // Catches a half-rendered prefix, e.g. "/${{ vars.ENV }}/db/" with ENV unset
+  if (ssmPathPrefix.includes('//')) {
+    throw new Error(`path_prefix has an empty path segment: ${ssmPathPrefix}`);
+  }
 
   _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq(`Fetching parameters for prefix: ${ssmPathPrefix}`);
 
@@ -65051,6 +65069,7 @@ async function run() {
       Type: 'SecureString',
       Overwrite: true,
       Tier: tier,
+      KeyId: kmsKeyId,
     }));
   }
 
@@ -65059,7 +65078,7 @@ async function run() {
 
   _actions_core__WEBPACK_IMPORTED_MODULE_0__/* .info */ .pq(`Checking for orphan parameters...`);
   for (const existingParam of existingParameters) {
-    const shortName = existingParam.name.replace(ssmPathPrefix, '');
+    const shortName = existingParam.name.slice(ssmPathPrefix.length);
     const existsInInput = params.some(p => p.name === shortName);
 
     if (!existsInInput) {
