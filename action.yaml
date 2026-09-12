@@ -1,5 +1,5 @@
 name: AWS SSM Sync Parameters
-description: Sync Parameters to AWS SSM Parameter store
+description: Sync parameters to the AWS Systems Manager Parameter Store
 
 branding:
   icon: repeat
@@ -7,19 +7,19 @@ branding:
 
 inputs:
   path_prefix:
-    description: SSM path prefix
+    description: SSM path prefix that every parameter is stored under; must start with "/" and contain at least one segment
     required: true
   parameters:
-    description: YAML mapping of parameter names to values
+    description: A YAML mapping of parameter names to values; always quote the values
     required: true
   tier:
-    description: The parameter tier to assign to a parameter
+    description: The parameter tier to assign to every parameter; one of Standard, Advanced or Intelligent-Tiering
+    required: false
     default: Standard
   kms_key_id:
-    description: KMS key ID/ARN/alias for SecureString encryption
+    description: The KMS key ID, ARN or alias used to encrypt the SecureString values; defaults to the AWS managed key
     required: false
 
 runs:
   using: node24
   main: 'dist/index.js'
-

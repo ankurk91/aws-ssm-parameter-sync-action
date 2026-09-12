@@ -1,42 +1,40 @@
-# IDE
+# Editors and IDEs
+.cursor/
 .idea/
 .vscode/
-.cursor/
 
-# logs and cache
+# Dependencies
+.pnpm-store/
+node_modules/
+
+# Logs and caches
 *.log
-npm-debug.log*
 .cache
+npm-debug.log*
 
-# OS generated files
-[Tt]humbs.db
-ehthumbs.db
+# Backup and temporary files
 *~
-.*~
-._*
 *.bak
 *.save
 *.swp
+.*~
 
-# Recycle bin folder used by different OS
-.Trash-*
-$RECYCLE.BIN/
-
-# Windows shortcuts
-*.lnk
-
-# Folder config file
-[Dd]esktop.ini
+# macOS
+._*
 *.DS_Store
 .DS_Store?
+.Trash-*
 
-# node packages
-node_modules/
+# Windows
+$RECYCLE.BIN/
+*.lnk
+[Dd]esktop.ini
+ehthumbs.db
+[Tt]humbs.db
 
-# Security tokens
+# Secrets and credentials
 .env
-*.pem
-*.pub
 *.crt
 *.key
-
+*.pem
+*.pub
