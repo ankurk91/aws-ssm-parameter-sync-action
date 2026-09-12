@@ -116,7 +116,7 @@ async function run() {
 
   core.info(`Checking for orphan parameters...`);
   for (const existingParam of existingParameters) {
-    const shortName = existingParam.name.replace(ssmPathPrefix, '');
+    const shortName = existingParam.name.slice(ssmPathPrefix.length);
     const existsInInput = params.some(p => p.name === shortName);
 
     if (!existsInInput) {
