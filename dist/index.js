@@ -62004,10 +62004,11 @@ __nccwpck_require__.d(__webpack_exports__, {
   pq: () => (/* binding */ info),
   _o: () => (/* binding */ isDebug),
   lm: () => (/* binding */ notice),
-  C1: () => (/* binding */ setFailed)
+  C1: () => (/* binding */ setFailed),
+  $e: () => (/* binding */ warning)
 });
 
-// UNUSED EXPORTS: ExitCode, addPath, endGroup, exportVariable, getBooleanInput, getIDToken, getMultilineInput, getState, group, markdownSummary, platform, saveState, setCommandEcho, setOutput, setSecret, startGroup, summary, toPlatformPath, toPosixPath, toWin32Path, warning
+// UNUSED EXPORTS: ExitCode, addPath, endGroup, exportVariable, getBooleanInput, getIDToken, getMultilineInput, getState, group, markdownSummary, platform, saveState, setCommandEcho, setOutput, setSecret, startGroup, summary, toPlatformPath, toPosixPath, toWin32Path
 
 ;// CONCATENATED MODULE: external "os"
 const external_os_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("os");
@@ -62033,7 +62034,7 @@ function utils_toCommandValue(input) {
  * @returns The command properties to send with the actual annotation command
  * See IssueCommandProperties: https://github.com/actions/runner/blob/main/src/Runner.Worker/ActionCommandManager.cs#L646
  */
-function utils_toCommandProperties(annotationProperties) {
+function toCommandProperties(annotationProperties) {
     if (!Object.keys(annotationProperties).length) {
         return {};
     }
@@ -64844,7 +64845,7 @@ function core_debug(message) {
  * @param properties optional properties to add to the annotation.
  */
 function error(message, properties = {}) {
-    command_issueCommand('error', utils_toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    command_issueCommand('error', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 /**
  * Adds a warning issue
@@ -64852,7 +64853,7 @@ function error(message, properties = {}) {
  * @param properties optional properties to add to the annotation.
  */
 function warning(message, properties = {}) {
-    issueCommand('warning', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    command_issueCommand('warning', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 /**
  * Adds a notice issue
@@ -64860,7 +64861,7 @@ function warning(message, properties = {}) {
  * @param properties optional properties to add to the annotation.
  */
 function notice(message, properties = {}) {
-    command_issueCommand('notice', utils_toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+    command_issueCommand('notice', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 /**
  * Writes info to log with console.log.
@@ -68720,7 +68721,10 @@ var CHOMPING_KEEP = CHOMPING_MODE.KEEP;
 
 
 //# sourceMappingURL=js-yaml.mjs.map
+// EXTERNAL MODULE: ./node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/core.js + 20 modules
+var core = __nccwpck_require__(4858);
 ;// CONCATENATED MODULE: ./src/utils.js
+
 
 
 function parseParameters(input) {
@@ -68742,10 +68746,24 @@ function parseParameters(input) {
 
   return Object.entries(doc)
     .filter(([name]) => name)
-    .map(([name, value]) => ({
-      name: String(name),
-      value: value == null ? '' : String(value),
-    }));
+    .map(([name, value]) => {
+      // String() would store a mapping as "[object Object]" and a sequence as "a,b"
+      if (value !== null && typeof value === 'object') {
+        throw new Error(
+          `parameters.${name} must be a scalar, got ${Array.isArray(value) ? 'sequence' : 'mapping'}`
+        );
+      }
+
+      // YAML parses 1.10 as a number, which stringifies back as "1.1"
+      if (typeof value === 'number' || typeof value === 'boolean') {
+        core/* warning */.$e(`parameters.${name} is an unquoted ${typeof value}; quote it to preserve the literal`);
+      }
+
+      return {
+        name: String(name),
+        value: value == null ? '' : String(value),
+      };
+    });
 }
 
 
