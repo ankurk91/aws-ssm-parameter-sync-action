@@ -15,6 +15,9 @@ inputs:
   tier:
     description: The parameter tier to assign to a parameter
     default: Standard
+  kms_key_id:
+    description: KMS key ID/ARN/alias for SecureString encryption
+    required: false
 
 runs:
   using: node24

@@ -48,6 +48,7 @@ jobs:
 | `path_prefix` | Yes      | `null`     | SSM path prefix                                        |
 | `parameters`  | Yes      | `null`     | YAML mapping of parameter names to values              |
 | `tier`        | No       | `Standard` | One of `Advanced`, `Intelligent-Tiering` or `Standard` |
+| `kms_key_id`  | No       | `null`     | KMS key ID/ARN/alias for `SecureString` encryption     |
 
 ### Credentials and Region
 
@@ -81,6 +82,9 @@ This action requires the following minimum set of permissions:
   ]
 }
 ```
+
+When using a customer-managed `kms_key_id`, the role also needs `kms:Encrypt`, `kms:Decrypt` and
+`kms:GenerateDataKey` on that key (granted via the IAM policy and the key policy).
 
 ### Reference links
 

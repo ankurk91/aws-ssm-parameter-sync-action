@@ -19,6 +19,9 @@ async function run() {
   const tier = core.getInput('tier', {
     required: false
   });
+  const kmsKeyId = core.getInput('kms_key_id', {
+    required: false
+  }) || undefined;
 
   core.info('Normalizing input parameters...');
 
@@ -89,6 +92,7 @@ async function run() {
       Type: 'SecureString',
       Overwrite: true,
       Tier: tier,
+      KeyId: kmsKeyId,
     }));
   }
 
