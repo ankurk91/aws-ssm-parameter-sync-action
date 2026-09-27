@@ -11,7 +11,7 @@ GitHub Action: sync YAML `parameters` to AWS SSM Parameter Store under `path_pre
 
 ## Dev
 
-- Node 24+ (`.nvmrc`), pnpm v12.x
+- Node 24+ (`engines` in `package.json`), pnpm v12.x (`packageManager`)
 - `pnpm install` → `pnpm run build` before release or CI that uses `dist/`
 - Local: copy `.env.example` → `.env`, `docker compose up`, `pnpm start` (needs `AWS_ENDPOINT_URL` for LocalStack/Floci)
 - Inputs are read as `INPUT_<NAME>` env vars; `.env.example` covers all four

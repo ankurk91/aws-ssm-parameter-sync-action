@@ -1,25 +1,11 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Normalize line endings to LF (matches .editorconfig)
+* text=auto eol=lf
 
-# Don't diff or textually merge source maps
-*.map   binary
-
-# Avoid unreadable diffs for generated text files, eg: *.min.js
-*.min.* binary
-
-# Image files
-*.jpg binary
-*.jpeg binary
-*.png binary
-*.ico binary
-
-# Export ignores
-tests export-ignore
-__test__ export-ignore
+# Keep dev-only files out of git archives
 .github export-ignore
 
-# Do not show diffs for built artifacts
-dist/** -diff
+# Built artifacts: no textual diffs, collapsed in PRs, excluded from language stats
+dist/** -diff linguist-generated
 
-# Exclude built artifacts from language statistics
-dist/** linguist-vendored
+# Collapse the lockfile in PR diffs
+pnpm-lock.yaml linguist-generated
