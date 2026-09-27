@@ -12,10 +12,3 @@ trim_trailing_whitespace = true
 
 [*.md]
 trim_trailing_whitespace = false
-
-# These properties supported by few editors
-[*.js]
-curly_bracket_next_line = false
-spaces_around_operators = true
-indent_brace_style = 1TBS
-spaces_around_brackets = both
