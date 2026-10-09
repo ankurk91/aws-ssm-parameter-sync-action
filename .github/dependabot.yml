@@ -4,7 +4,8 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: '0 9 15 * *'
     cooldown:
       default-days: 7
       semver-major-days: 30
@@ -18,7 +19,8 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: '0 9 15 * *'
     cooldown:
       default-days: 7
     groups:
@@ -29,7 +31,8 @@ updates:
   - package-ecosystem: docker-compose
     directory: /
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: '0 9 15 * *'
     cooldown:
       default-days: 7
     groups:

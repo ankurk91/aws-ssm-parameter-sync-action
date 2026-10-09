@@ -13,6 +13,7 @@ GitHub Action: sync YAML `parameters` to AWS SSM Parameter Store under `path_pre
 
 - Node 24+ (`engines` in `package.json`), pnpm v12.x (`packageManager`)
 - `pnpm install` → `pnpm run build` before release or CI that uses `dist/`
+- Lint: `pnpm run lint` (oxlint, default `correctness` rules, config in `.oxlintrc.json`; `dist/` ignored)
 - Local: copy `.env.example` → `.env`, `docker compose up`, `pnpm start` (needs `AWS_ENDPOINT_URL` for LocalStack/Floci)
 - Inputs are read as `INPUT_<NAME>` env vars; `.env.example` covers all four
 - CI: `.github/workflows/tests.yaml` — Floci on `:4566`, 
