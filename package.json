@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@actions/core": "^3.0.1",
-    "@aws-sdk/client-ssm": "^3.1141.0",
-    "js-yaml": "^5.4.2"
+    "@aws-sdk/client-ssm": "^3.1145.0",
+    "js-yaml": "^5.4.3"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.45.0",
