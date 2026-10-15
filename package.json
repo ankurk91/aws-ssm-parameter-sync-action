@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@actions/core": "^3.0.1",
-    "@aws-sdk/client-ssm": "^3.1145.0",
+    "@aws-sdk/client-ssm": "^3.1147.0",
     "js-yaml": "^5.4.3"
   },
   "devDependencies": {

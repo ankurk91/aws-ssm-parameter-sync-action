@@ -170,8 +170,8 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       '@aws-sdk/client-ssm':
-        specifier: ^3.1145.0
-        version: 3.1145.0
+        specifier: ^3.1147.0
+        version: 3.1147.0
       js-yaml:
         specifier: ^5.4.3
         version: 5.4.3
@@ -199,8 +199,8 @@ packages:
   '@actions/io@3.0.2':
     resolution: {integrity: sha512-nRBchcMM+QK1pdjO7/idu86rbJI5YHUKCvKs0KxnSYbVe3F51UfGxuZX4Qy/fWlp6l7gWFwIkrOzN+oUK03kfw==}
 
-  '@aws-sdk/client-ssm@3.1145.0':
-    resolution: {integrity: sha512-m3p5jijHQ/d03kKp9NHBZ9fv9HpB3w37z1FXb9B+s1qDDkznzqSXL5sJ8F4Jzr2Hahw/J0h9odY1BNzXwlbZdg==}
+  '@aws-sdk/client-ssm@3.1147.0':
+    resolution: {integrity: sha512-NOF22mNGU1q5lrdG6eZYimDMWq6Z8QIrrJ+ITgUgIBm/kxlqsUYS+yqlxhyajm3P2QjEZEdynX3SGTOZ0NUDGw==}
     engines: {node: '>=20.0.0'}
 
   '@aws-sdk/core@3.978.1':
@@ -465,7 +465,7 @@ snapshots:
 
   '@actions/io@3.0.2': {}
 
-  '@aws-sdk/client-ssm@3.1145.0':
+  '@aws-sdk/client-ssm@3.1147.0':
     dependencies:
       '@aws-sdk/core': 3.978.1
       '@aws-sdk/credential-provider-node': 3.972.84
