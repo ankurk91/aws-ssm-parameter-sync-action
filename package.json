@@ -20,12 +20,12 @@
   },
   "dependencies": {
     "@actions/core": "^3.0.1",
-    "@aws-sdk/client-ssm": "^3.1147.0",
-    "js-yaml": "^5.4.3"
+    "@aws-sdk/client-ssm": "^3.1164.0",
+    "js-yaml": "^5.5.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.45.0",
-    "oxlint": "^1.87.0"
+    "oxlint": "^1.92.0"
   },
   "engineStrict": true,
   "packageManager": "pnpm@12.6.0",
