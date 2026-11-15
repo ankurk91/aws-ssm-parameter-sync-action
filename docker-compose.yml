@@ -1,6 +1,6 @@
 services:
   floci:
-    image: floci/floci:2.2.0
+    image: floci/floci:2.4.0
     container_name: floci
     restart: no
     ports:
